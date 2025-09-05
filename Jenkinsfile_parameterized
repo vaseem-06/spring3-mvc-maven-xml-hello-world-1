@@ -16,7 +16,7 @@ pipeline {
     environment {
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
-        NEXUS_URL = "13.233.66.167:8081/"
+        NEXUS_URL = "98.81.235.168:8081"
         NEXUS_REPOSITORY = "ncodeit-helloworld"
         NEXUS_CREDENTIAL_ID = "nexus_credentials"
     }
