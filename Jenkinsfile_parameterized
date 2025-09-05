@@ -9,8 +9,8 @@ pipeline {
     }
 
     tools {
-        jdk "Java-17" // make sure this matches JDK 17 installed in Jenkins
-        maven "Maven"
+        jdk "Java-17" // Must match your Jenkins configured JDK 17
+        maven "Maven"  // Must match your Jenkins Maven installation
     }
 
     environment {
@@ -25,9 +25,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                script {
-                    git branch: "${params.BRANCH_NAME}", url: 'https://github.com/vaseem-06/spring3-mvc-maven-xml-hello-world-1.git'
-                }
+                git branch: "${params.BRANCH_NAME}", url: 'https://github.com/vaseem-06/spring3-mvc-maven-xml-hello-world-1.git'
             }
         }
 
@@ -45,7 +43,7 @@ pipeline {
                     if (params.SKIP_TEST) {
                         mvnCmd += " -DskipTests"
                     }
-                    echo "Running Maven: ${mvnCmd}"
+                    echo "Running Maven command: ${mvnCmd}"
                     sh mvnCmd
                 }
             }
