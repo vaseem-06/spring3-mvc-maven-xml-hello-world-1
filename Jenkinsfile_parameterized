@@ -2,12 +2,14 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Enter the Git branch to build')
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch to build')
         booleanParam(name: 'SKIP_TEST', defaultValue: false, description: 'Skip unit tests?')
         choice(name: 'MAVEN_GOAL', choices: ['clean package', 'clean deploy', 'package'], description: 'Maven goal to run')
+        booleanParam(name: 'PUBLISH_TO_NEXUS', defaultValue: false, description: 'Publish artifact to Nexus')
     }
 
     tools {
+        jdk "Java-17" // make sure this matches JDK 17 installed in Jenkins
         maven "Maven"
     }
 
@@ -39,21 +41,22 @@ pipeline {
         stage('Maven Build') {
             steps {
                 script {
-                    def mvnCmd = "mvn ${params.MAVEN_GOAL}"
+                    def mvnCmd = "mvn ${params.MAVEN_GOAL} -U"
                     if (params.SKIP_TEST) {
                         mvnCmd += " -DskipTests"
                     }
-                    mvnCmd += " -U"
-                    echo "Running Maven command: ${mvnCmd}"
+                    echo "Running Maven: ${mvnCmd}"
                     sh mvnCmd
                 }
             }
         }
 
         stage('Publish to Nexus') {
+            when {
+                expression { return params.PUBLISH_TO_NEXUS }
+            }
             steps {
                 script {
-                    // Only publish if Maven build completed successfully
                     def pom = readMavenPom file: "pom.xml"
                     def filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
                     if (filesByGlob.length == 0) {
@@ -82,10 +85,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline completed successfully!"
+            echo "Build completed successfully!"
         }
         failure {
-            echo "Pipeline failed. Check console output for details."
+            echo "Build failed! Check console output for details."
         }
     }
 }
